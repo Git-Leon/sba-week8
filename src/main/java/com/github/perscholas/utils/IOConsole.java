@@ -52,7 +52,7 @@ public class IOConsole {
     }
 
     public void print(String val, Object... args) {
-        output.format(ansiColor.getColor() + val, args);
+        output.format(ansiColor.getColor().concat(val), args);
     }
 
     public void println(String val, Object... vals) {

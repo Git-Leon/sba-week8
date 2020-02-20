@@ -5,6 +5,7 @@ import com.github.perscholas.utils.IOConsole;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * Created by leon on 2/18/2020.
@@ -25,7 +26,7 @@ public enum DatabaseConnection implements DatabaseConnectionInterface {
                 .setUser("root")
                 .setPassword("")
                 .setPort(3306)
-                .setDatabaseVendor("mariadb")
+                .setDatabaseVendor("mysql")
                 .setHost("127.0.0.1"));
     }
 
@@ -48,31 +49,72 @@ public enum DatabaseConnection implements DatabaseConnectionInterface {
 
     @Override
     public void create() {
-        String sqlStatement = null; // TODO - define statement
-        String info;
+        String sqlStatement = "CREATE DATABASE " + getDatabaseName(); // TODO - define statement
         try {
-            // TODO - execute statement
-            info = "Successfully executed statement `%s`.";
+            getDatabaseEngineConnection()
+                    .prepareStatement(sqlStatement)
+                    .execute();
+            String info = "Successfully executed statement \n\t`%s`.";
+            console.println(info, sqlStatement);
         } catch (Exception sqlException) {
-            info = "Failed to executed statement `%s`.";
+            throw new Error(sqlException);
         }
-        console.println(info, sqlStatement);
     }
 
     @Override
     public void drop() {
+        String sqlStatement = "DROP DATABASE IF EXISTS " + getDatabaseName(); // TODO - define statement
+        try {
+            getDatabaseEngineConnection()
+                    .prepareStatement(sqlStatement)
+                    .execute();
+            String info = "Successfully executed statement \n\t`%s`.";
+            console.println(info, sqlStatement);
+        } catch (Exception sqlException) {
+            throw new Error(sqlException);
+        }
     }
 
     @Override
     public void use() {
+        String sqlStatement = "USE " + getDatabaseName(); // TODO - define statement
+        try {
+            getDatabaseEngineConnection()
+                    .prepareStatement(sqlStatement)
+                    .execute();
+            String info = "Successfully executed statement \n\t`%s`.";
+            console.println(info, sqlStatement);
+        } catch (Exception sqlException) {
+            throw new Error(sqlException);
+        }
     }
 
     @Override
     public void executeStatement(String sqlStatement) {
+        try {
+            sqlStatement = sqlStatement.trim();
+            getDatabaseConnection()
+                    .prepareStatement(sqlStatement)
+                    .execute();
+            String info = "Successfully executed statement \n\t`%s`.";
+            console.println(info, sqlStatement);
+        } catch (SQLException e) {
+            throw new Error(e);
+        }
     }
 
     @Override
     public ResultSet executeQuery(String sqlQuery) {
-        return null;
+        try {
+            sqlQuery = sqlQuery.trim();
+            ResultSet result = getDatabaseConnection()
+                    .prepareStatement(sqlQuery)
+                    .executeQuery();
+            String info = "Successfully executed statement \n\t`%s`.";
+            console.println(info, sqlQuery);
+            return result;
+        } catch (SQLException e) {
+            throw new Error(e);
+        }
     }
 }

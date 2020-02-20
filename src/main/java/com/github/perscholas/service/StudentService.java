@@ -20,32 +20,46 @@ public class StudentService implements StudentDao {
     }
 
     public StudentService() {
-        this(DatabaseConnection.UAT);
+        this(DatabaseConnection.MANAGEMENT_SYSTEM);
     }
 
     @Override
     public List<StudentInterface> getAllStudents() {
-        ResultSet resultSet = dbc.executeQuery("SELECT * FROM students");
+        ResultSet resultSet = dbc.executeQuery("SELECT * FROM student");
+        List<StudentInterface> list = new ArrayList<>();
         try {
-            return null; // TODO - Parse `List<StudentInterface>` from `resultSet`
-        } catch(Exception e) {
+            while (resultSet.next()) {
+                StudentInterface student = new Student();
+                student.setEmail(resultSet.getString("email"));
+                student.setName(resultSet.getString("name"));
+                student.setPassword(resultSet.getString("password"));
+                list.add(student);
+            }
+        } catch (Exception e) {
             throw new Error(e);
         }
+        return list;
     }
 
     @Override
     public StudentInterface getStudentByEmail(String studentEmail) {
-        return null;
+        return getAllStudents()
+                .stream()
+                .filter(student -> student.getEmail().equals(studentEmail))
+                .findFirst()
+                .get();
     }
 
     @Override
     public Boolean validateStudent(String studentEmail, String password) {
-        return null;
+        return getStudentByEmail(studentEmail).getPassword().equals(password);
     }
+
 
     @Override
     public void registerStudentToCourse(String studentEmail, int courseId) {
-
+        String sqlStatement = "INSERT INTO StudentRegistration VALUES('" + studentEmail + "','" + courseId + "')";
+        dbc.executeStatement(sqlStatement);
     }
 
     @Override
